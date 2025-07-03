@@ -1,0 +1,14 @@
+Source: ssh-tpm-agent
+Section: utils
+Priority: optional
+Maintainer: Your Name <jan-ake@ronnblom.se>
+Build-Depends: debhelper-compat (= 13), dh-golang 
+Standards-Version: 4.6.2
+Homepage: https://github.com/Foxboron/ssh-tpm-agent
+Rules-Requires-Root: no
+
+Package: ssh-tpm-agent
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: TPM-backed ssh-agent replacement
+ A minimal ssh-agent backed by TPM for secure key storage and authentication.

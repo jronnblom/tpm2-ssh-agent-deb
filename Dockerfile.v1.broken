@@ -1,0 +1,60 @@
+# Base image: Ubuntu 24.04
+FROM ubuntu:24.04
+
+# Set non-interactive mode for apt
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Create a user for building
+RUN useradd -ms /bin/bash builder
+WORKDIR /home/builder
+USER builder
+
+# Switch to root to install dependencies
+USER root
+
+# Install basic build dependencies (excluding default Go)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    git \
+    devscripts \
+    dh-make \
+    dh-golang \
+    golang-any \
+    debhelper \
+    ca-certificates \
+    curl \
+    tar \
+    xz-utils \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Go 1.23 manually
+ENV GO_VERSION=1.23.10
+RUN curl -fsSL https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz -o go.tar.gz && \
+    rm -rf /usr/local/go && \
+    tar -C /usr/local -xzf go.tar.gz && \
+    rm go.tar.gz
+ENV PATH="/usr/local/go/bin:$PATH"
+
+# Switch back to builder user
+USER builder
+WORKDIR /home/builder
+
+# Clone the ssh-tpm-agent repo (lowercase path!)
+RUN git clone https://github.com/foxboron/ssh-tpm-agent.git
+WORKDIR /home/builder/ssh-tpm-agent
+
+# Ensure Go dependencies are fetched
+RUN go mod tidy && go clean -modcache
+
+# Copy prebuilt debian/ directory into the repo
+COPY --chown=builder:builder debian/ ./debian/
+
+# Create the required .orig.tar.gz
+RUN tar --exclude='.git' -czf ../ssh-tpm-agent_0.8.0.orig.tar.gz .
+
+# Build the .deb
+RUN PATH="/usr/local/go/bin:$PATH" DH_GOLANG_GO=/usr/local/go/bin/go debuild -us -uc
+
+# Final output command (optional override)
+CMD ["bash", "-c", "cp ../*.deb /output && ls -lh ../*.deb"]
+
