@@ -43,4 +43,6 @@ GitHub Actions workflow `.github/workflows/build.yml`:
 
 - Builds packages for every target in `versions.conf`
 - Uploads artifacts from each matrix job
-- Publishes `.deb` files as assets on the upstream release tag
+- Publishes `.deb` files as assets on a `deb-<upstream-tag>` GitHub Release
+- Supports manual `workflow_dispatch` runs with an optional `release_tag` override
+- Replaces existing assets on reruns to keep releases up to date
