@@ -1,6 +1,14 @@
+ssh-tpm-agent (0.8.1) unstable; urgency=medium
+
+  * Add multi-Ubuntu build matrix (24.04 and 26.04).
+  * Add external requirements mapping for Ubuntu-to-Go versions.
+  * Add automated latest upstream release version detection.
+  * Add CI workflow to build and publish .deb release assets.
+
+ -- Your Name <jan-ake@ronnblom.se>  Wed, 17 Jun 2026 15:40:00 +0000
+
 ssh-tpm-agent (0.8.0) unstable; urgency=medium
 
   * Initial release.
 
  -- Your Name <jan-ake@ronnblom.se>  Mon, 30 Jun 2025 16:29:00 +0000
-

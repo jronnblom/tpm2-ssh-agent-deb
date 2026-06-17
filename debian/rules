@@ -1,25 +1,29 @@
 #!/usr/bin/make -f
 
-export PATH := /usr/local/go/bin:$(PATH)
-export GOROOT := /usr/local/go
+ifneq (,$(wildcard /usr/local/go/bin/go))
+export GO_BIN := /usr/local/go/bin/go
+else
+export GO_BIN := $(shell command -v go)
+endif
+
+export PATH := $(dir $(GO_BIN)):$(PATH)
 export GO111MODULE := on
 export GOPROXY := https://proxy.golang.org,direct
 
 %:
-	dh $@
+dh $@
 
 override_dh_auto_test:
 
 override_dh_dwz:
 
 override_dh_auto_build:
-	go build -o ssh-tpm-agent ./cmd/ssh-tpm-agent
-	go build -o ssh-tpm-keygen ./cmd/ssh-tpm-keygen
-	go build -o ssh-tpm-add ./cmd/ssh-tpm-add
+$(GO_BIN) build -o ssh-tpm-agent ./cmd/ssh-tpm-agent
+$(GO_BIN) build -o ssh-tpm-keygen ./cmd/ssh-tpm-keygen
+$(GO_BIN) build -o ssh-tpm-add ./cmd/ssh-tpm-add
 
 override_dh_auto_install:
-	mkdir -p debian/ssh-tpm-agent/usr/bin
-	cp ssh-tpm-agent debian/ssh-tpm-agent/usr/bin/
-	cp ssh-tpm-keygen debian/ssh-tpm-agent/usr/bin/
-	cp ssh-tpm-add debian/ssh-tpm-agent/usr/bin/
-
+mkdir -p debian/ssh-tpm-agent/usr/bin
+cp ssh-tpm-agent debian/ssh-tpm-agent/usr/bin/
+cp ssh-tpm-keygen debian/ssh-tpm-agent/usr/bin/
+cp ssh-tpm-add debian/ssh-tpm-agent/usr/bin/
