@@ -5,6 +5,9 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   prepare:
     runs-on: ubuntu-latest
@@ -91,6 +94,6 @@ PY
       - name: Publish release assets
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ needs.prepare.outputs.release_tag }}
+          tag_name: deb-${{ needs.prepare.outputs.release_tag }}
           files: artifacts/*.deb
           generate_release_notes: true
