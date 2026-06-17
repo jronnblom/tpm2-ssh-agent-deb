@@ -25,14 +25,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 RUN if [ "$GO_VERSION" != "bundled" ]; then \
-      curl -fsSL "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz" -o go.tar.gz && \
+      (curl -fsSL "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz" -o go.tar.gz || \
+       curl -fsSL "https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz" -o go.tar.gz) && \
       rm -rf /usr/local/go && \
       tar -C /usr/local -xzf go.tar.gz && \
       rm go.tar.gz; \
     fi
 
 ENV PATH="/usr/local/go/bin:${PATH}"
-ENV GOROOT="/usr/local/go"
 ENV GO111MODULE=on
 ENV GOPROXY="https://proxy.golang.org,direct"
 ENV DH_GOPKG="github.com/Foxboron/ssh-tpm-agent"
@@ -47,11 +47,11 @@ RUN git clone https://github.com/Foxboron/ssh-tpm-agent.git && \
       SSH_TPM_AGENT_VERSION="$(git tag --sort=-version:refname | grep -E '^v?[0-9]' | head -n 1)"; \
     fi && \
     git checkout "$SSH_TPM_AGENT_VERSION" && \
-    go mod tidy
+    for i in 1 2 3 4 5; do go mod tidy && break || [ "$i" -eq 5 ]; sleep 2; done
 
 WORKDIR /home/builder/ssh-tpm-agent
 COPY --chown=builder:builder debian ./debian
-RUN go mod download
+RUN for i in 1 2 3 4 5; do go mod download && break || [ "$i" -eq 5 ]; sleep 2; done
 RUN debuild -us -uc
 
 USER root
