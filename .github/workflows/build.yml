@@ -103,7 +103,7 @@ PY
         uses: softprops/action-gh-release@v2
         with:
           tag_name: deb-${{ needs.prepare.outputs.release_tag }}
-          name: ssh-tpm-agent deb packages ${{ needs.prepare.outputs.release_tag }}
+          name: Debian Packages for ssh-tpm-agent ${{ needs.prepare.outputs.release_tag }}
           files: artifacts/*.deb
           overwrite_files: true
           generate_release_notes: true
