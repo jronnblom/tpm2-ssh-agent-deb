@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     fakeroot \
     git \
     golang-go \
+    libssl-dev \
     lintian \
     pkg-config \
     unzip \
@@ -47,11 +48,19 @@ RUN git clone https://github.com/Foxboron/ssh-tpm-agent.git && \
       SSH_TPM_AGENT_VERSION="$(git tag --sort=-version:refname | grep -E '^v?[0-9]' | head -n 1)"; \
     fi && \
     git checkout "$SSH_TPM_AGENT_VERSION" && \
-    for i in 1 2 3 4 5; do go mod tidy && break || [ "$i" -eq 5 ]; sleep 2; done
+    for i in 1 2 3 4 5; do \
+      if go mod tidy; then break; fi; \
+      if [ "$i" -eq 5 ]; then exit 1; fi; \
+      sleep 2; \
+    done
 
 WORKDIR /home/builder/ssh-tpm-agent
 COPY --chown=builder:builder debian ./debian
-RUN for i in 1 2 3 4 5; do go mod download && break || [ "$i" -eq 5 ]; sleep 2; done
+RUN for i in 1 2 3 4 5; do \
+      if go mod download; then break; fi; \
+      if [ "$i" -eq 5 ]; then exit 1; fi; \
+      sleep 2; \
+    done
 RUN debuild -us -uc
 
 USER root

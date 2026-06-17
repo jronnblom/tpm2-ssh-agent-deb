@@ -18,6 +18,11 @@ override_dh_auto_test:
 override_dh_dwz:
 
 override_dh_auto_build:
+	for i in 1 2 3 4 5; do \
+		if $(GO_BIN) mod download; then break; fi; \
+		if [ "$$i" -eq 5 ]; then exit 1; fi; \
+		sleep 2; \
+	done
 	$(GO_BIN) build -o ssh-tpm-agent ./cmd/ssh-tpm-agent
 	$(GO_BIN) build -o ssh-tpm-keygen ./cmd/ssh-tpm-keygen
 	$(GO_BIN) build -o ssh-tpm-add ./cmd/ssh-tpm-add
